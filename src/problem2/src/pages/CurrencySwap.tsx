@@ -30,6 +30,7 @@ import {
 } from "../components/ui/command";
 import { Input } from "../components/ui/input";
 import { formatNumber } from "../utils/formatNumber";
+import Icon from "../components/Icon";
 
 const FormSchema = z.object({
   amount: z.coerce.number({ message: "Please enter valid number." }).min(0.01, {
@@ -116,7 +117,7 @@ export function CurrencySwap() {
             render={({ field }) => (
               <FormItem className="flex flex-col mr-2">
                 <FormLabel className="mb-[9px]">From</FormLabel>
-                <Popover> 
+                <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
@@ -127,6 +128,7 @@ export function CurrencySwap() {
                           !field.value && "text-muted-foreground"
                         )}
                       >
+                        <Icon name={field.value} />
                         {field.value
                           ? listCurrency.find(
                               (item) => item.currency === field.value
@@ -174,7 +176,7 @@ export function CurrencySwap() {
             )}
           />
           <ArrowRightLeft
-            className="mx-8 my-4 cursor-pointer"
+            className="mx-8 my-4 cursor-pointer md:w-[56px] md:h-[56px] sm:w-[24px] sm:h-[24px]"
             onClick={() => {
               const from = form.getValues("from");
               const to = form.getValues("to");
@@ -199,6 +201,7 @@ export function CurrencySwap() {
                           !field.value && "text-muted-foreground"
                         )}
                       >
+                        <Icon name={field.value} />
                         {field.value
                           ? listCurrency.find(
                               (item) => item.currency === field.value
