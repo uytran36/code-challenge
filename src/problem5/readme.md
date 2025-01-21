@@ -11,13 +11,13 @@
    Copy the .env.example file to .env.
    Adjust environment variables as needed.
    Running
-   The server will listen on the port defined in your .env file or default to 3000.
-4. Start the server:
+   The server will listen on the port defined in your .env file or default to 3001.
+4. Run database migrations:
+   ```bash
+   npm run typeorm:run
+   ```
+5. Start the server:
    ````bash
     npm start
     ```
    ````
-5. Testing
-   ```bash
-   npm test
-   ```
