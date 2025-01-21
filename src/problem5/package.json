@@ -1,5 +1,5 @@
 {
-  "name": "crud-problem5",
+  "name": "problem5-cruder-server",
   "version": "1.0.0",
   "scripts": {
     "start": "nodemon src/server.ts",

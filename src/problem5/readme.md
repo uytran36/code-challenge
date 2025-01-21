@@ -19,5 +19,4 @@
 5. Start the server:
    ````bash
     npm start
-    ```
    ````
