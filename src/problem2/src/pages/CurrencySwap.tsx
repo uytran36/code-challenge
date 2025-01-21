@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,7 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "../components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { ArrowRightLeft, Check, ChevronsUpDown } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -30,12 +29,13 @@ import {
   CommandList,
 } from "../components/ui/command";
 import { Input } from "../components/ui/input";
+import { formatNumber } from "../utils/formatNumber";
 
 const FormSchema = z.object({
-  amount: z.number({
-    message: "Please input amount in number.",
-    required_error: "Please input amount.",
+  amount: z.coerce.number({ message: "Please enter valid number." }).min(0.01, {
+    message: "Please enter number greater than 0.01",
   }),
+
   from: z.string({
     required_error: "Please select currency.",
   }),
@@ -46,7 +46,8 @@ const FormSchema = z.object({
 
 export function CurrencySwap() {
   const [listCurrency, setListCurrency] = useState<Currency[]>([]);
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+  const [isSubmited, setIsSubmited] = useState(false);
+  const [result, setResult] = useState<number>(0);
 
   useEffect(() => {
     fetch("https://interview.switcheo.com/prices.json")
@@ -72,21 +73,38 @@ export function CurrencySwap() {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+    const from = listCurrency.find((item) => item.currency === data.from);
+    const to = listCurrency.find((item) => item.currency === data.to);
+    const amount = data.amount;
+    if (!from || !to) return;
+
+    console.log("from", from);
+    console.log("to", to);
+    const result = (amount * from.price) / to.price;
+
+    setResult(result);
+    setIsSubmited(true);
   }
 
   return (
-    <div>
+    <div className="bg-white shadow-md rounded-lg p-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 flex">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="md:flex sm:flex md:flex-row sm:flex-col"
+        >
           <FormField
             control={form.control}
             name="amount"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="mr-16 mb-8  md:w-[100%] sm:w-[100%]">
                 <FormLabel>Amount</FormLabel>
                 <FormControl>
-                  <Input placeholder="amount" {...field} />
+                  <Input
+                    className="h-[35px]"
+                    placeholder="Please enter amount"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -96,9 +114,9 @@ export function CurrencySwap() {
             control={form.control}
             name="from"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>From</FormLabel>
-                <Popover>
+              <FormItem className="flex flex-col mr-2">
+                <FormLabel className="mb-[9px]">From</FormLabel>
+                <Popover> 
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
@@ -155,12 +173,21 @@ export function CurrencySwap() {
               </FormItem>
             )}
           />
+          <ArrowRightLeft
+            className="mx-8 my-4 cursor-pointer"
+            onClick={() => {
+              const from = form.getValues("from");
+              const to = form.getValues("to");
+              form.setValue("from", to);
+              form.setValue("to", from);
+            }}
+          />
           <FormField
             control={form.control}
             name="to"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>To</FormLabel>
+              <FormItem className="flex flex-col mr-8">
+                <FormLabel className="mb-[9px]">To</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -218,9 +245,22 @@ export function CurrencySwap() {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button className="mt-[32px] h-[35px]" type="submit">
+            Convert
+          </Button>
         </form>
       </Form>
+      {isSubmited && (
+        <div className="mt-4">
+          <div>
+            {formatNumber(form.getValues("amount"))} {form.getValues("from")} =
+          </div>
+          <div className="text-2xl font-bold">
+            {result >= 1000 ? formatNumber(result) : result}{" "}
+            {form.getValues("to")}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
